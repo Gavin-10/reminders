@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getReminders, getReminderById, createReminder, deleteReminder, updateReminder } = require('./reminderDriver');
+const { getReminders, getReminderById, createReminder, deleteReminder, updateReminder, deleteAllReminders } = require('./reminderDriver');
 
 router.route("/")
 .get((req, res) => {
-  const id = parseInt(req.query.id);
-  console.log(id);
   if(req.query.id != undefined) {
     getReminderById(req, res);
   } else {
@@ -14,6 +12,12 @@ router.route("/")
 })
 .put(updateReminder)
 .post(createReminder)
-.delete(deleteReminder)
+.delete((req, res) => {
+  if(req.query.id != undefined) {
+    deleteReminder(req, res);
+  } else {
+    deleteAllReminders(req, res);
+  }
+})
 
 module.exports = router;

@@ -35,10 +35,10 @@ const getReminderById = async (req, res) => {
     }
 
     console.log(req.url);
-    console.log("sending reminder: \n", result.rows);
+    console.log("Sending reminder: \n", result.rows);
 
     res.status(200).json(result.rows);
-  })
+  });
 }
 
 const createReminder = (req, res) => {
@@ -64,7 +64,7 @@ const createReminder = (req, res) => {
       }
 
       res.status(201).send(`Reminder added with ID: ${result.insertedID}`);
-    })
+    });
 
   }
 
@@ -84,7 +84,7 @@ const updateReminder = (req, res) => {
     }
 
     res.status(200).send(`Reminder modified with ID: ${req.query.id}`);
-  })
+  });
 }
 
 const deleteReminder = (req, res) => {
@@ -96,8 +96,20 @@ const deleteReminder = (req, res) => {
       throw err;
     }
 
-    res.status(200).send(`User deleted with ID: ${id}`);
-  })
+    res.status(200).send(`Reminder deleted with ID: ${id}`);
+  });
+}
+
+const deleteAllReminders = (req, res) => {
+  console.log("deleting all completed reminders");
+
+  pool.query('DELETE FROM completedreminders', [], (err, result) => {
+    if (err) {
+      throw err;
+    }
+
+    res.status(200).send("All completed reminders deleted")
+  });
 }
 
 module.exports = {
@@ -106,4 +118,5 @@ module.exports = {
   updateReminder,
   createReminder,
   deleteReminder,
+  deleteAllReminders,
 }

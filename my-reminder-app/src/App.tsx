@@ -3,36 +3,58 @@ import AppBar from "@mui/material/AppBar"
 import Toolbar from "@mui/material/Toolbar"
 import IconButton from "@mui/material/IconButton"
 import Typography from "@mui/material/Typography"
-import AddAlertIcon from '@mui/icons-material/AddAlert';
+import AddAlertIcon from '@mui/icons-material/AddAlert'
 import Card from "@mui/material/Card"
 import Grid2 from "@mui/material/Grid2"
+import Button from "@mui/material/Button"
 import NewReminder from "./components/newReminder"
 import CompletedReminder from "./components/completedReminder"
 import { useNavigate, useLoaderData } from "react-router-dom"
 import { Reminder } from "./reminder"
 import { useState } from "react"
-import { deleteReminder, completeReminder } from "./actions/reminderActions"
+import { deleteReminder, completeReminder, deleteAllReminders } from "./actions/reminderActions"
 
 function App() {
   const data: any = useLoaderData();
   const [newReminders, setNewReminders] = useState<Reminder[]>(data.newReminders as Reminder[]);
-  const [completedReminders, _] = useState<Reminder[]>(data.completedReminders as Reminder[]);
+  const [completedReminders, setCompletedReminders] = useState<Reminder[]>(data.completedReminders as Reminder[]);
   const navigate = useNavigate();
 
-  const deleteHandler = (id: number) => {
-    deleteReminder(id);
-    const newData: Reminder[] = newReminders.filter((element: Reminder) => element.id != id);
-    setNewReminders(newData);
+  const deleteHandler = async (id: number) => {
+    try {
+      await deleteReminder(id);
+      const newData: Reminder[] = newReminders.filter((element: Reminder) => element.id != id);
+      setNewReminders(newData);
+    } catch (error) {
+      console.error("an error has occured");
+      console.error(error);
+    }
   }
 
-  const completed = (data: Reminder) => {
-    completeReminder(data);
-    const completedReminder = newReminders.find((element: Reminder) => element.id == data.id);
-    completedReminder!.completed = true;
-    completedReminders.push(completedReminder!);
+  const completed = async (data: Reminder) => {
 
-    const editedNewReminders = newReminders.filter((element: Reminder) => !element.completed);
-    setNewReminders(editedNewReminders);
+    try {
+      await completeReminder(data);
+      const completedReminder = newReminders.find((element: Reminder) => element.id == data.id);
+      completedReminder!.completed = true;
+      completedReminders.push(completedReminder!);
+
+      const editedNewReminders = newReminders.filter((element: Reminder) => !element.completed);
+      setNewReminders(editedNewReminders);
+    } catch (error) {
+      console.error("an error has occured");
+      console.error(error);
+    }
+  }
+
+  const clearReminders = async () => {
+    try {
+      await deleteAllReminders();
+      setCompletedReminders([]);
+    } catch (error) {
+      console.error("an error has occured");
+      console.error(error);
+    }
   }
 
   return (
@@ -71,7 +93,10 @@ function App() {
       </Grid2>
       <Grid2 size={{xs: 12, sm: 6}}>
         <Card elevation={3} sx={{px: 2, py: 3, maxWidth: '400px', height: '700px', overflow: 'auto'}}>
-          <Typography variant="h4">Completed</Typography>
+          <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+            <Typography variant="h4">Completed</Typography>
+            <Button sx={{mb: 1}} onClick={clearReminders}>Clear All</Button>
+          </Box>
           <Divider />
           {
             completedReminders.map((element: Reminder, index: number) => (
